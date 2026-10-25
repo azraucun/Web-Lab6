@@ -1,11 +1,14 @@
-import { useReducer, useEffect } from "react";
+import { useReducer, useEffect, useState } from "react";
 import { fetchPosts } from "./api/postsApi";
 import { postsReducer, initialState } from "./reducer/postsReducer";
 import PostList from "./components/PostList";
+import FilterForm from "./components/FilterForm";
 
 function App() {
-  // state: posts, loading, error  |  dispatch: reducer'a işlem gönderen fonksiyon
+  // state: posts, loading, error ,dispatch: reducer'a işlem gönderen fonksiyon
   const [state, dispatch] = useReducer(postsReducer, initialState);
+
+  const [filter, setFilter] = useState("");
 
   // Sayfa ilk açıldığında postları çek
   useEffect(() => {
@@ -29,24 +32,28 @@ function App() {
 
     // Cleanup: component kapanırsa devam eden isteği iptal et
     return () => controller.abort();
-  }, []); // [] → sadece ilk açılışta bir kez çalış
+  }, []); // sadece ilk açılışta bir kez çalış
 
-  // Duruma göre ekranda ne gösterileceğine karar ver (conditional rendering)
+  const filteredPosts = state.posts.filter((post) =>
+    post.title.toLowerCase().includes(filter.toLowerCase())
+  );
+
   let content;
 
   if (state.loading) {
     content = <p>Loading posts...</p>;
   } else if (state.error) {
     content = <p>Error: {state.error}</p>;
-  } else if (state.posts.length === 0) {
+  } else if (filteredPosts.length === 0) {
     content = <p>No posts found.</p>;
   } else {
-    content = <PostList posts={state.posts} />; // postları listele
+    content = <PostList posts={filteredPosts} />; // filtrelenmiş postları listele
   }
 
   return (
     <div>
       <h1>Post Dashboard</h1>
+      <FilterForm value={filter} onFilterChange={setFilter} />
       {content}
     </div>
   );
