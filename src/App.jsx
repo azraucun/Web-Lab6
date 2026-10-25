@@ -1,9 +1,10 @@
 import { useReducer, useEffect } from "react";
 import { fetchPosts } from "./api/postsApi";
 import { postsReducer, initialState } from "./reducer/postsReducer";
+import PostList from "./components/PostList";
 
 function App() {
-  // state: posts, loading, error   dispatch: reducer'a işlem gönderen fonksiyon
+  // state: posts, loading, error  |  dispatch: reducer'a işlem gönderen fonksiyon
   const [state, dispatch] = useReducer(postsReducer, initialState);
 
   // Sayfa ilk açıldığında postları çek
@@ -28,9 +29,9 @@ function App() {
 
     // Cleanup: component kapanırsa devam eden isteği iptal et
     return () => controller.abort();
-  }, []); //sadece ilk açılışta bir kez çalış
+  }, []); // [] → sadece ilk açılışta bir kez çalış
 
-  // Duruma göre ekranda ne gösterileceğine karar ver
+  // Duruma göre ekranda ne gösterileceğine karar ver (conditional rendering)
   let content;
 
   if (state.loading) {
@@ -40,7 +41,7 @@ function App() {
   } else if (state.posts.length === 0) {
     content = <p>No posts found.</p>;
   } else {
-    content = <p>Posts loaded: {state.posts.length}</p>; 
+    content = <PostList posts={state.posts} />; // postları listele
   }
 
   return (
